@@ -1,0 +1,955 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>The Alchemy — 炼金术师</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>Ψ</text></svg>" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Noto+Serif+SC:wght@200;300;400;500;600;700&family=Cinzel:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #000000;
+      --bg-card: #0c0f14;
+      --bg-card-hover: #151922;
+      --bg-elevated: rgba(10, 14, 22, 0.85);
+      --bg-inset: rgba(18, 22, 32, 0.6);
+      --text: #e8ecf3;
+      --muted: #8b9bb4;
+      --gold: #E8D5A3;
+      --gold-light: #F5ECD7;
+      --gold-soft: #EDE0C0;
+      --projection-blue: #AAC4F5;
+      --imagination-green: #D2DCB6;
+      --border: rgba(255,255,255,0.06);
+      --border-hover: rgba(255,255,255,0.12);
+      --font-serif: 'Noto Serif SC', 'Songti SC', serif;
+      --font-cinzel: 'Cinzel', serif;
+      --font-sans: 'Inter', system-ui, sans-serif;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+    body { font-family: var(--font-sans); color: var(--text); background: var(--bg); overflow-x: hidden; line-height: 1.6; scroll-snap-type: y proximity; scroll-padding-top: 80px; }
+    ::selection { background: rgba(212, 175, 55, 0.3); }
+
+    /* ===== Background & Star Field ===== */
+    .fixed-background {
+      position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: -1;
+      background-image: linear-gradient(to bottom, #000000 0%, #020408 85%, #0d1e35 100%);
+      pointer-events: none;
+    }
+    #star-canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; }
+
+    /* ===== Top Nav ===== */
+    .top-nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      padding: 0 40px; height: 64px;
+      display: flex; justify-content: space-between; align-items: center;
+      transition: background 0.4s, backdrop-filter 0.4s;
+    }
+    .top-nav.scrolled {
+      background: rgba(5, 5, 5, 0.85);
+      backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-logo {
+      font-family: var(--font-cinzel); font-size: 1.2rem; font-weight: 600;
+      color: #fff; letter-spacing: 3px; text-decoration: none;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .nav-logo .psi { font-size: 1.5rem; color: var(--gold); font-weight: 400; }
+    .nav-links { display: flex; gap: 24px; list-style: none; align-items: center; }
+    .nav-links a { color: var(--muted); text-decoration: none; font-size: 0.82rem; letter-spacing: 1px; transition: color 0.3s; }
+    .nav-links a:hover { color: #fff; }
+    .nav-cta-btn {
+      padding: 7px 22px; border: 1px solid rgba(232,213,163,0.4); border-radius: 999px;
+      color: var(--gold-light) !important; font-family: var(--font-serif); font-size: 0.85rem;
+      transition: all 0.3s !important;
+    }
+    .nav-cta-btn:hover { background: rgba(232,213,163,0.1); border-color: var(--gold); }
+
+    /* Hamburger */
+    .hamburger {
+      display: none; background: none; border: none; cursor: pointer;
+      width: 32px; height: 32px; position: relative; z-index: 110;
+    }
+    .hamburger span {
+      display: block; width: 20px; height: 1.5px; background: #fff;
+      margin: 5px auto; transition: all 0.3s;
+    }
+    .hamburger.open span:nth-child(1) { transform: translateY(6.5px) rotate(45deg); }
+    .hamburger.open span:nth-child(2) { opacity: 0; }
+    .hamburger.open span:nth-child(3) { transform: translateY(-6.5px) rotate(-45deg); }
+
+    .mobile-menu {
+      display: none; position: fixed; inset: 0; z-index: 99;
+      background: rgba(5, 5, 5, 0.95); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
+      flex-direction: column; align-items: center; justify-content: center; gap: 32px;
+    }
+    .mobile-menu.open { display: flex; }
+    .mobile-menu a {
+      font-family: var(--font-serif); font-size: 1.2rem; color: var(--muted);
+      text-decoration: none; letter-spacing: 2px; transition: color 0.3s;
+    }
+    .mobile-menu a:hover { color: #fff; }
+
+    /* ===== Floating Side Nav ===== */
+    .side-nav {
+      position: fixed; right: 24px; top: 50%; transform: translateY(-50%);
+      z-index: 90; display: flex; flex-direction: column; align-items: flex-end; gap: 4px;
+    }
+    .side-nav-item {
+      display: flex; align-items: center; gap: 8px; padding: 4px 0;
+      cursor: pointer; border: none; background: none;
+    }
+    .side-nav-label {
+      font-size: 0.65rem; font-weight: 500; color: rgba(255,255,255,0.35);
+      opacity: 0; transition: opacity 0.3s; letter-spacing: 0.5px;
+    }
+    .side-nav-item:hover .side-nav-label { opacity: 1; }
+    .side-nav-item.active .side-nav-label { opacity: 1; color: rgba(255,255,255,0.8); }
+    .side-nav-dot {
+      width: 6px; height: 6px; border-radius: 99px;
+      background: rgba(255,255,255,0.3); transition: all 0.3s;
+    }
+    .side-nav-item:hover .side-nav-dot { background: rgba(255,255,255,0.5); }
+    .side-nav-item.active .side-nav-dot { width: 18px; background: rgba(255,255,255,0.7); }
+
+    /* ===== Layout ===== */
+    .page-section { position: relative; z-index: 1; padding: 120px 24px; scroll-snap-align: start; }
+    .max-w { max-width: 1200px; margin: 0 auto; }
+    .max-w-narrow { max-width: 760px; margin: 0 auto; }
+
+    .section-block, .section-block-dark, .section-block-accent {
+      background: none;
+      border: none;
+      border-radius: 0;
+      padding: 80px 60px;
+      margin-bottom: 0;
+    }
+
+    .grid-12 { display: grid; grid-template-columns: repeat(12, 1fr); gap: 48px; align-items: start; }
+    .col-7 { grid-column: span 7; }
+    .col-5 { grid-column: span 5; }
+    .col-6 { grid-column: span 6; }
+
+    /* ===== Typography ===== */
+    .section-label {
+      font-family: var(--font-cinzel); font-size: 0.75rem; letter-spacing: 4px;
+      color: var(--gold); text-transform: uppercase; margin-bottom: 16px;
+    }
+    .section-title {
+      font-family: var(--font-serif); font-size: clamp(1.6rem, 3.5vw, 2.4rem);
+      font-weight: 400; color: #fff; margin-bottom: 24px; letter-spacing: 2px; line-height: 1.4;
+    }
+    .section-desc {
+      font-size: 1rem; color: var(--muted); line-height: 1.8; margin-bottom: 40px;
+    }
+
+    /* ===== Demo Placeholder ===== */
+    .demo-placeholder {
+      width: 100%; aspect-ratio: 9/16;
+      background: rgba(255,255,255,0.02);
+      border: 2px dashed rgba(255,255,255,0.1);
+      border-radius: 1.2rem;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      color: rgba(255,255,255,0.2); gap: 12px;
+      position: relative; overflow: hidden;
+    }
+    .demo-placeholder::after {
+      content: ''; position: absolute; inset: 0;
+      background: linear-gradient(135deg, transparent 0%, rgba(255,255,255,0.02) 100%);
+      pointer-events: none;
+    }
+    .demo-placeholder svg { width: 32px; height: 32px; opacity: 0.3; }
+    .demo-placeholder span { font-size: 0.75rem; font-weight: 500; letter-spacing: 1px; }
+    .demo-placeholder-wide { aspect-ratio: 16/10; }
+    .demo-placeholder-square { aspect-ratio: 1/1; }
+
+    .demo-caption {
+      font-size: 0.75rem; color: var(--muted); text-align: center; margin-top: 12px; opacity: 0.6;
+    }
+
+    /* ===== Section 1: Hero ===== */
+    #hero {
+      min-height: 100vh; display: flex; flex-direction: column;
+      align-items: center; justify-content: center; text-align: center; padding-top: 80px;
+    }
+    .hero-title {
+      font-family: var(--font-serif); font-weight: 200;
+      font-size: clamp(2rem, 6vw, 4rem);
+      letter-spacing: clamp(0.2rem, 0.8vw, 0.5rem);
+      color: #fff; text-shadow: 0 0 30px rgba(255,255,255,0.6); margin-bottom: 0;
+    }
+    .hero-title span { display: inline-block; animation: floatChar var(--dur, 8s) ease-in-out infinite; animation-delay: var(--d, 0s); }
+    @keyframes floatChar { 0%, 100% { transform: translateY(0); opacity: 0.85; } 50% { transform: translateY(-8px); opacity: 1; } }
+
+    .hero-en-sub {
+      font-family: var(--font-cinzel); font-size: clamp(0.7rem, 1.2vw, 0.9rem);
+      color: var(--muted); letter-spacing: 0.35rem;
+      margin-top: 12px; margin-bottom: 0; opacity: 0.5;
+    }
+    .hero-sub {
+      font-family: var(--font-serif); font-size: 1rem;
+      color: var(--muted); line-height: 2; margin-top: 2.5rem; margin-bottom: 40px; letter-spacing: 2px;
+    }
+    .btn-primary {
+      display: inline-block; padding: 16px 48px; background: #fff; color: #000;
+      font-family: var(--font-serif); font-weight: 700; font-size: 0.95rem;
+      border-radius: 999px; text-decoration: none; transition: all 0.4s;
+      box-shadow: 0 0 40px rgba(255,255,255,0.1); letter-spacing: 2px;
+    }
+    .btn-primary:hover { transform: scale(1.05); box-shadow: 0 0 60px rgba(255,255,255,0.25); }
+
+    /* Hero floating cards */
+    .hero-cards {
+      display: flex; justify-content: center; gap: 28px; margin-top: 56px; margin-bottom: 60px;
+      perspective: 1200px; flex-wrap: nowrap; overflow-x: auto; padding: 25px 2vw;
+      scrollbar-width: none; -webkit-overflow-scrolling: touch; width: 100%;
+    }
+    .hero-cards::-webkit-scrollbar { display: none; }
+    .archetype-card {
+      width: 200px; height: 310px; position: relative; cursor: pointer; flex-shrink: 0;
+      perspective: 1200px; transform-style: preserve-3d;
+      animation: floatCard 6s ease-in-out infinite; animation-delay: var(--fd, 0s);
+    }
+    @keyframes floatCard { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-12px); } }
+    .card-inner {
+      width: 100%; height: 100%; position: relative; transform-style: preserve-3d;
+      transition: transform 0.7s cubic-bezier(0.2, 0.8, 0.2, 1);
+      border-radius: 12px; box-shadow: 0 15px 40px rgba(0,0,0,0.45);
+    }
+    .archetype-card.flipped .card-inner { transform: rotateY(180deg); }
+    .card-front, .card-back {
+      position: absolute; width: 100%; height: 100%;
+      -webkit-backface-visibility: hidden; backface-visibility: hidden;
+      border-radius: 12px; overflow: hidden;
+    }
+    .card-front { background: var(--bg-card); box-shadow: inset 0 0 0 1px rgba(255,255,255,0.1); }
+    .card-front-bg { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background-size: cover; background-position: center; }
+    .card-front-overlay { position: absolute; bottom: -2px; left: -2px; right: -2px; height: 100%; background: linear-gradient(to top, #000 0%, rgba(0,0,0,0.6) 30%, rgba(0,0,0,0) 55%); pointer-events: none; }
+    .card-front-content { position: absolute; bottom: 28px; left: 0; width: 100%; text-align: center; z-index: 2; padding: 0 16px; }
+    .card-front-content h3 { font-family: var(--font-serif); font-size: 1.2rem; color: #fff; margin: 0 0 6px; text-shadow: 0 2px 4px rgba(0,0,0,0.8); }
+    .card-front-content span { font-family: var(--font-serif); font-size: 0.85rem; color: rgba(255,255,255,0.9); letter-spacing: 1.5px; text-shadow: 0 1px 3px rgba(0,0,0,0.8); }
+    .card-back { background: var(--bg-card-hover); transform: rotateY(180deg); border: 1px solid var(--border-hover); display: flex; align-items: center; justify-content: center; padding: 18px 20px; }
+    .card-back p { font-family: var(--font-serif); font-size: 0.9rem; line-height: 1.5; color: rgba(255,255,255,0.9); text-align: justify; }
+
+    .scroll-indicator {
+      position: absolute; bottom: 32px; left: 50%; transform: translateX(-50%);
+      display: flex; flex-direction: column; align-items: center; gap: 8px;
+      cursor: pointer; opacity: 0.5; transition: opacity 0.3s;
+    }
+    .scroll-indicator:hover { opacity: 1; }
+    .scroll-indicator span { font-family: var(--font-cinzel); font-size: 0.65rem; letter-spacing: 3px; color: #fff; text-transform: uppercase; }
+    .scroll-arrow { width: 16px; height: 16px; border-right: 1.5px solid #fff; border-bottom: 1.5px solid #fff; transform: rotate(45deg); animation: bounce 3s ease-in-out infinite; }
+    @keyframes bounce { 0%, 100% { transform: rotate(45deg) translateY(0); opacity: 0.3; } 50% { transform: rotate(45deg) translateY(6px); opacity: 1; } }
+
+    /* ===== Pain Section ===== */
+    .pain-header {
+      text-align: center; margin-bottom: 0;
+    }
+    .pain-header .section-title {
+      line-height: 1.6;
+    }
+    .pain-divider {
+      width: 32px; height: 1px; background: rgba(232,213,163,0.3);
+      margin: 24px auto;
+    }
+    .pain-lead {
+      font-family: var(--font-serif); font-size: 0.85rem;
+      color: rgba(255,255,255,0.35); letter-spacing: 2px;
+      margin-bottom: 16px;
+    }
+    .pain-list {
+      max-width: 560px; margin: 0 auto;
+      display: flex; flex-direction: column; gap: 0;
+      margin-bottom: 56px; text-align: left;
+      list-style: none;
+      background: rgba(0,0,0,0.6);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 16px;
+      padding: 24px 32px;
+      box-shadow: 0 0 48px rgba(120,160,255,0.06);
+    }
+    .pain-list li {
+      font-family: var(--font-serif); font-size: 0.95rem; color: rgba(255,255,255,0.8); line-height: 1.8;
+      font-weight: 400;
+      padding: 6px 0; position: relative; padding-left: 16px;
+    }
+    .pain-list li::before {
+      content: '·'; position: absolute; left: 0; color: var(--gold-soft); font-size: 1.2rem; line-height: 1.6; opacity: 0.5;
+    }
+    .pain-closing { max-width: 560px; margin: 0 auto; text-align: center; }
+    .pain-closing-context {
+      font-family: var(--font-sans); font-size: 0.88rem; line-height: 1.8;
+      color: rgba(255,255,255,0.5); letter-spacing: 0.3px; margin-bottom: 32px;
+      font-weight: 400;
+    }
+    .pain-closing-conclusion {
+      font-family: var(--font-serif); font-size: 1.15rem; line-height: 1.7;
+      color: var(--gold-soft); letter-spacing: 1px; font-weight: 500;
+      padding-top: 24px;
+      border-top: 1px solid rgba(255,255,255,0.06);
+    }
+
+    /* ===== Jung Concepts (glossary style) ===== */
+    .jung-concepts {
+      max-width: 800px; margin: 0 auto;
+      display: flex; flex-direction: column;
+      background: rgba(0,0,0,0.6);
+      border-radius: 16px;
+      padding: 16px 32px;
+    }
+    .jung-concept {
+      display: grid; grid-template-columns: 150px 1fr; gap: 32px;
+      align-items: baseline;
+      padding: 20px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+    .jung-concept:last-child { border-bottom: none; }
+    .concept-term { display: flex; flex-direction: column; gap: 4px; }
+    .term-zh {
+      font-family: var(--font-serif);
+      font-size: clamp(1.4rem, 2.5vw, 1.8rem);
+      color: var(--gold-soft); font-weight: 500;
+      letter-spacing: 2px;
+    }
+    .term-en {
+      font-family: var(--font-cinzel);
+      font-size: 0.7rem; color: rgba(255,255,255,0.25);
+      letter-spacing: 2px; text-transform: uppercase;
+    }
+    .concept-desc {
+      font-size: 0.88rem; color: rgba(255,255,255,0.6);
+      line-height: 1.7;
+    }
+
+    /* ===== Feature Section ===== */
+    .feature-mode-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 48px; }
+    .mode-card {
+      background: rgba(0,0,0,0.6); border: 1px solid var(--border);
+      border-radius: 16px; padding: 24px; text-align: center;
+      transition: all 0.4s; opacity: 0; transform: translateY(24px); cursor: default;
+    }
+    .mode-card.visible { opacity: 1; transform: translateY(0); }
+    .mode-card:hover { border-color: var(--border-hover); transform: translateY(-4px) !important; background: rgba(255,255,255,0.05); }
+    .mode-card-icon { width: 48px; height: 48px; margin: 0 auto 16px; }
+    .mode-card-icon svg { width: 100%; height: 100%; }
+    .mode-card h3 { font-family: var(--font-serif); font-size: 1.1rem; color: #fff; margin-bottom: 12px; font-weight: 600; }
+    .mode-card p { font-size: 0.85rem; color: var(--muted); line-height: 1.6; text-align: left; }
+
+    /* Feature detail with timeline */
+    .feature-detail-block {
+      background: none; border: none;
+      border-radius: 0; overflow: hidden; margin-bottom: 24px;
+    }
+    .feature-detail-inner { display: grid; grid-template-columns: 7fr 5fr; }
+    .feature-detail-inner.reversed { grid-template-columns: 5fr 7fr; }
+    .feature-detail-inner.reversed .feature-detail-demo { order: -1; border-left: none; border-right: 1px solid var(--border); }
+    .feature-detail-content { padding: 48px 40px; }
+    .feature-detail-demo { padding: 40px; display: flex; flex-direction: column; justify-content: center; align-items: center; border-left: 1px solid var(--border); }
+    .feature-detail-demo .demo-placeholder { max-width: 50%; }
+    .feature-detail-content h4 { font-family: var(--font-serif); font-size: 1.5rem; color: #fff; margin-bottom: 12px; font-weight: 500; }
+    .feature-detail-content > p { font-size: 0.92rem; color: var(--muted); line-height: 1.8; margin-bottom: 28px; }
+
+    /* Timeline steps */
+    .timeline { display: flex; flex-direction: column; gap: 0; }
+    .timeline-step { display: flex; align-items: flex-start; gap: 16px; }
+    .timeline-rail { display: flex; flex-direction: column; align-items: center; flex-shrink: 0; }
+    .timeline-dot { width: 10px; height: 10px; border-radius: 50%; border: 2px solid var(--gold-soft); background: transparent; flex-shrink: 0; }
+    .timeline-line { width: 1px; flex: 1; min-height: 24px; background: rgba(255,255,255,0.08); }
+    .timeline-body { padding-bottom: 24px; }
+    .timeline-body p { font-size: 0.88rem; color: var(--muted); line-height: 1.7; }
+    .timeline-body strong { color: #fff; font-weight: 500; }
+
+    /* Topic bubbles */
+    .topic-bubbles { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
+    .topic-bubble {
+      background: rgba(255,255,255,0.03); border: 1px solid var(--border);
+      border-radius: 999px; padding: 8px 16px; font-size: 0.78rem;
+      color: rgba(255,255,255,0.75); transition: all 0.3s; cursor: default;
+    }
+    .topic-bubble:hover { background: rgba(255,255,255,0.06); border-color: var(--border-hover); }
+    .topic-bubble .concept { color: var(--gold-soft); font-size: 0.72rem; margin-left: 4px; opacity: 0.7; }
+
+    /* ===== Archetype Showcase ===== */
+    .archetype-showcase {
+      display: flex; justify-content: center; gap: 24px; margin-top: 40px;
+      flex-wrap: nowrap; overflow-x: auto; padding: 24px 2vw;
+      scrollbar-width: none; -webkit-overflow-scrolling: touch; width: 100%;
+    }
+    .archetype-showcase::-webkit-scrollbar { display: none; }
+    .showcase-card {
+      width: 220px; height: 400px; perspective: 1200px; cursor: pointer; flex-shrink: 0;
+      opacity: 0; transform: translateY(24px);
+    }
+    .showcase-card.visible { opacity: 1; transform: translateY(0); }
+    .showcase-inner { width: 100%; height: 100%; position: relative; transform-style: preserve-3d; transition: transform 0.7s cubic-bezier(0.4,0.2,0.2,1); border-radius: 14px; box-shadow: 0 6px 24px rgba(0,0,0,0.3); }
+    .showcase-card.flipped .showcase-inner { transform: rotateY(180deg); }
+    .showcase-front, .showcase-back { position: absolute; width: 100%; height: 100%; -webkit-backface-visibility: hidden; backface-visibility: hidden; border-radius: 14px; overflow: hidden; }
+    .showcase-front { background: var(--bg-card); }
+    .showcase-front-bg { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background-size: cover; background-position: center; }
+    .showcase-front-overlay { position: absolute; bottom: -2px; left: -2px; right: -2px; height: 100%; background: linear-gradient(to top, #000 0%, rgba(0,0,0,0.6) 35%, rgba(0,0,0,0) 60%); pointer-events: none; }
+    .showcase-front-content { position: absolute; bottom: 24px; left: 0; right: 0; text-align: center; z-index: 2; padding: 0 16px; }
+    .showcase-front-content h3 { font-family: var(--font-serif); font-size: 1.25rem; color: #fff; margin: 0 0 6px; text-shadow: 0 2px 4px rgba(0,0,0,0.8); }
+    .showcase-front-content .zh-name { font-family: var(--font-serif); font-size: 0.85rem; color: rgba(255,255,255,0.8); display: block; margin-bottom: 8px; }
+    .showcase-front-content .desc { font-size: 0.7rem; color: rgba(255,255,255,0.65); line-height: 1.4; font-family: var(--font-serif); text-shadow: 0 1px 3px rgba(0,0,0,0.8); }
+    .showcase-back { background: var(--bg-card-hover); transform: rotateY(180deg); border: 1px solid var(--border-hover); display: flex; flex-direction: column; justify-content: center; padding: 24px; }
+    .showcase-back-header { font-family: var(--font-cinzel); font-size: 0.6rem; letter-spacing: 2px; color: var(--gold-soft); text-transform: uppercase; margin-bottom: 16px; opacity: 0.5; text-align: center; }
+    .insight-entry { border-left: 1px solid rgba(232,213,163,0.3); padding-left: 12px; }
+    .insight-entry p { font-family: var(--font-serif); font-size: 0.78rem; line-height: 1.6; color: rgba(255,255,255,0.85); }
+    .insight-entry .date { font-family: var(--font-cinzel); font-size: 0.55rem; color: var(--muted); margin-top: 4px; opacity: 0.5; }
+
+    .guidance-block {
+      background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 8px; padding: 12px;
+    }
+    .guidance-label {
+      font-family: var(--font-serif); font-size: 0.65rem; color: var(--gold-soft);
+      letter-spacing: 1px; margin-bottom: 6px; opacity: 0.7;
+    }
+    .guidance-text {
+      font-family: var(--font-serif); font-size: 0.75rem; line-height: 1.6;
+      color: rgba(255,255,255,0.75); margin: 0;
+    }
+
+    .archetype-highlight {
+      background: rgba(255,255,255,0.02); border: 1px solid var(--border);
+      border-radius: 1.2rem; padding: 32px; margin-top: 48px; text-align: center;
+      opacity: 0; transform: translateY(24px);
+    }
+    .archetype-highlight.visible { opacity: 1; transform: translateY(0); }
+    .highlight-text { font-family: var(--font-serif); font-size: 1.1rem; color: #fff; line-height: 1.8; margin-bottom: 20px; letter-spacing: 1px; }
+    .flip-demo { display: flex; justify-content: center; gap: 40px; margin: 24px 0; flex-wrap: wrap; }
+    .flip-side { text-align: center; }
+    .flip-side h4 { font-family: var(--font-serif); font-size: 0.95rem; color: #fff; margin-bottom: 6px; }
+    .flip-side p { font-size: 0.82rem; color: var(--muted); line-height: 1.5; }
+    .flip-divider { display: flex; align-items: center; color: rgba(255,255,255,0.15); font-size: 1.3rem; }
+    .highlight-sub { font-size: 0.85rem; color: var(--muted); line-height: 1.8; }
+
+    /* ===== Tech Section ===== */
+    .tech-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-top: 40px; }
+    .tech-card {
+      background: rgba(0,0,0,0.6); border: 1px solid var(--border);
+      border-radius: 16px; padding: 32px 24px;
+      transition: all 0.4s; opacity: 0; transform: translateY(24px);
+      display: flex; flex-direction: column;
+    }
+    .tech-card.visible { opacity: 1; transform: translateY(0); }
+    .tech-card:hover { border-color: rgba(232,213,163,0.15); }
+    .tech-icon { width: 40px; height: 40px; margin-bottom: 24px; }
+    .tech-icon svg { width: 100%; height: 100%; }
+    .tech-card h3 { font-family: var(--font-serif); font-size: 1.15rem; color: #fff; margin-bottom: 12px; font-weight: 500; }
+    .tech-card p { font-size: 0.85rem; color: var(--muted); line-height: 1.7; margin-bottom: 12px; flex: 1; }
+    .volume-list { display: flex; flex-direction: column; gap: 4px; margin-top: 12px; padding: 12px; background: rgba(255,255,255,0.02); border-radius: 8px; }
+    .volume-item { font-size: 0.72rem; color: rgba(255,255,255,0.45); line-height: 1.5; }
+    .volume-item em { font-style: italic; color: rgba(255,255,255,0.6); }
+
+    /* ===== CTA ===== */
+    #cta { padding: 120px 24px; text-align: center; }
+    .cta-title { font-family: var(--font-serif); font-size: clamp(1.8rem, 4vw, 2.6rem); font-weight: 300; color: #fff; margin-bottom: 20px; letter-spacing: 3px; }
+    .cta-sub { font-family: var(--font-serif); font-size: 1rem; color: var(--muted); line-height: 2; margin-bottom: 48px; max-width: 560px; margin-left: auto; margin-right: auto; letter-spacing: 0.5px; }
+
+    /* ===== Footer ===== */
+    footer { position: relative; z-index: 1; padding: 32px 24px; text-align: center; border-top: 1px solid var(--border); }
+    footer p { font-size: 0.72rem; color: rgba(255,255,255,0.2); letter-spacing: 1px; }
+
+    /* ===== Reveal ===== */
+    .reveal { opacity: 0; transform: translateY(24px); transition: opacity 0.8s ease, transform 0.8s ease; }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+
+    /* ===== Responsive ===== */
+    @media (max-width: 1024px) {
+      .side-nav { display: none; }
+      .grid-12 { grid-template-columns: 1fr; gap: 32px; }
+      .col-7, .col-5, .col-6 { grid-column: span 1; }
+      .feature-detail-inner, .feature-detail-inner.reversed { grid-template-columns: 1fr; }
+      .feature-detail-demo { border-left: none; border-top: 1px solid var(--border); }
+      .feature-detail-inner.reversed .feature-detail-demo { order: 0; border-right: none; border-top: none; border-bottom: 1px solid var(--border); }
+      .section-block, .section-block-dark, .section-block-accent { padding: 48px 24px; }
+    }
+    @media (max-width: 768px) {
+      .top-nav { padding: 0 20px; }
+      .nav-links { display: none; }
+      .hamburger { display: block; }
+      .hero-cards { justify-content: flex-start; gap: 16px; }
+      .jung-concept { grid-template-columns: 1fr; gap: 12px; }
+      .feature-mode-cards { grid-template-columns: 1fr; }
+      .tech-grid { grid-template-columns: 1fr; }
+      .archetype-showcase { justify-content: flex-start; gap: 16px; }
+      .showcase-card { width: 200px; height: 360px; }
+      .page-section { padding: 60px 16px; }
+      .section-block, .section-block-dark, .section-block-accent { padding: 32px 16px; }
+      .feature-detail-content { padding: 24px 16px; }
+      .feature-detail-demo { padding: 24px 16px; }
+    }
+    @media (max-width: 480px) {
+      .showcase-card { width: 180px; height: 330px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="fixed-background"></div>
+<canvas id="star-canvas"></canvas>
+
+<!-- ===== Top Nav ===== -->
+<nav class="top-nav" id="main-nav">
+  <a href="#hero" class="nav-logo"><span class="psi">Ψ</span><span>THE ALCHEMY</span></a>
+  <ul class="nav-links">
+    <li><a href="#pain-points">共鸣</a></li>
+    <li><a href="#jung">理论</a></li>
+    <li><a href="#features">体验</a></li>
+    <li><a href="#archetypes">原型</a></li>
+    <li><a href="#tech">架构</a></li>
+    <li><a href="#cta" class="nav-cta-btn">开始探索</a></li>
+  </ul>
+  <button class="hamburger" id="hamburger-btn" aria-label="菜单">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<div class="mobile-menu" id="mobile-menu">
+  <a href="#pain-points" class="mobile-menu-link">共鸣</a>
+  <a href="#jung" class="mobile-menu-link">理论</a>
+  <a href="#features" class="mobile-menu-link">体验</a>
+  <a href="#archetypes" class="mobile-menu-link">原型</a>
+  <a href="#tech" class="mobile-menu-link">架构</a>
+  <a href="#cta" class="mobile-menu-link" style="color:var(--gold-light)">开始探索</a>
+</div>
+
+<!-- ===== Side Nav ===== -->
+<div class="side-nav" id="side-nav"></div>
+
+<!-- ===== Section 1: Hero ===== -->
+<section class="page-section" id="hero">
+  <div class="max-w" style="display:flex;flex-direction:column;align-items:center;text-align:center">
+    <h1 class="hero-title" id="hero-title"></h1>
+    <p class="hero-en-sub">T H E &nbsp; A L C H E M Y</p>
+    <div class="hero-sub">基于荣格心理学的 AI 深度对话伙伴，与你一起照亮黑暗的无意识</div>
+    <a href="javascript:void(0)" class="btn-primary">开始探索</a>
+    <div class="hero-cards" id="hero-cards"></div>
+  </div>
+</section>
+
+<!-- ===== Section 2: Pain Points ===== -->
+<section class="page-section" id="pain-points">
+  <div class="max-w">
+    <div class="section-block">
+      <div class="pain-header reveal">
+        <p class="section-label">Resonance</p>
+        <h2 class="section-title">有些问题，你可能已经想了很久</h2>
+      </div>
+
+      <div class="pain-divider"></div>
+
+      <div class="reveal" style="text-align:center">
+        <p class="pain-lead">你可能经历过：</p>
+      </div>
+      <ul class="pain-list reveal">
+        <li>对某个人有说不清的强烈情绪，事后想想好像不至于</li>
+        <li>总觉得自己在戴着面具生活，"真正的我"藏在某个看不到的地方</li>
+        <li>做了一个奇怪的梦，醒来后久久不能忘</li>
+        <li>莫名的空虚感、重复的行为模式、说不清楚的"卡住"</li>
+        <li>反复被同一类人吸引，又反复受伤</li>
+      </ul>
+
+      <div class="pain-closing reveal">
+        <p class="pain-closing-context">这些不是"想太多"，它们是你内心深处在试图和你对话。<br>市面上的 AI 心理工具能帮助管理情绪，但不触及情绪背后的根源。</p>
+        <p class="pain-closing-conclusion">要触及更深的问题，需要一套完全不同的理论框架。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ===== Section 3: Jung ===== -->
+<section class="page-section" id="jung" style="padding-top:80px;padding-bottom:80px;">
+  <div class="max-w">
+    <div class="section-block-dark" style="padding:48px 60px;">
+      <div class="reveal" style="text-align:center; margin-bottom: 32px;">
+        <p class="section-label">Foundation</p>
+        <h2 class="section-title" style="text-align:center">100 年前，卡尔·荣格专门研究了这些问题</h2>
+        <p style="font-size: 0.92rem; color: var(--muted); line-height: 1.7; letter-spacing: 0.5px; max-width: 560px; margin: 0 auto;">
+          卡尔·荣格（Carl Jung），20 世纪最有影响力的心理学家之一。他的理论不仅仅是MBTI人格测试的基础，更是一套理解人类心灵深层结构的语言——
+        </p>
+      </div>
+
+      <div class="jung-concepts">
+        <div class="jung-concept reveal">
+          <div class="concept-term">
+            <span class="term-zh">无意识</span>
+            <span class="term-en">The Unconscious</span>
+          </div>
+          <p class="concept-desc">你不了解的自己，比你了解的更多。意识只是冰山一角，真正驱动你行为和选择的是庞大的"无意识"。你以为的理性决定，背后可能有完全不同的动机。</p>
+        </div>
+        <div class="jung-concept reveal">
+          <div class="concept-term">
+            <span class="term-zh">原型</span>
+            <span class="term-en">Archetypes</span>
+          </div>
+          <p class="concept-desc">你的内心住着很多"角色"。阴影、人格面具、阿尼玛……它们不是抽象概念，而是实实在在影响你生活的心理力量。认识它们，才能不被它们操控。</p>
+        </div>
+        <div class="jung-concept reveal">
+          <div class="concept-term">
+            <span class="term-zh">积极想象</span>
+            <span class="term-en">Active Imagination</span>
+          </div>
+          <p class="concept-desc">梦和强烈情绪是入口，不是噪音。它们是无意识最直接的语言，是通向自我理解的线索。学会阅读这些信号，你就打开了一扇通往内心深处的门。</p>
+        </div>
+      </div>
+
+      <div class="reveal" style="text-align:center; margin-top: 24px;">
+        <p style="font-family: var(--font-serif); font-size: 0.95rem; color: var(--gold-soft); line-height: 1.7; letter-spacing: 0.5px;">
+          荣格把探索和整合自我叫做"自性化"（Individuation）——不是变成更好的人，而是成为更完整的自己。
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ===== Section 4a: Experience Overview ===== -->
+<section class="page-section" id="features">
+  <div class="max-w">
+    <div class="section-block-accent">
+      <div class="reveal" style="text-align:center; margin-bottom: 40px;">
+        <p class="section-label">Experience</p>
+        <h2 class="section-title" style="text-align:center">把荣格的方法论，变成你的 AI 对话伙伴</h2>
+      </div>
+      <div class="feature-mode-cards">
+        <div class="mode-card">
+          <div class="mode-card-icon">
+            <svg viewBox="0 0 512 512" fill="none"><circle cx="256" cy="256" r="8" fill="var(--imagination-green)"/><path d="M256,256 C216,156 236,52 256,32 C276,52 296,156 256,256 Z" stroke="var(--imagination-green)" stroke-width="8" fill="none"/><path d="M256,256 C356,216 460,236 480,256 C460,276 356,296 256,256 Z" stroke="var(--imagination-green)" stroke-width="8" fill="none"/><path d="M256,256 C216,356 236,460 256,480 C276,460 296,356 256,256 Z" stroke="var(--imagination-green)" stroke-width="8" fill="none"/><path d="M256,256 C156,216 52,236 32,256 C52,276 156,296 256,256 Z" stroke="var(--imagination-green)" stroke-width="8" fill="none"/></svg>
+          </div>
+          <h3>自由探索</h3>
+          <p>没有固定主题，聊什么都行。AI 会主动指出你没意识到的模式。</p>
+        </div>
+        <div class="mode-card">
+          <div class="mode-card-icon">
+            <svg viewBox="0 0 512 512" fill="none"><path d="M256 120c-126 0-216 136-216 136s90 136 216 136 216-136 216-136-90-136-216-136z M256 322c-36.5 0-66-29.5-66-66s29.5-66 66-66 66 29.5 66 66-29.5 66-66 66z" stroke="var(--projection-blue)" stroke-width="14" fill="none"/><circle cx="256" cy="256" r="8" fill="var(--projection-blue)"/></svg>
+          </div>
+          <h3>情绪投射</h3>
+          <p>你讨厌的那个人，可能藏着你自己的秘密。当你对某人有超出比例的强烈反应，这往往是"投射"。</p>
+        </div>
+        <div class="mode-card">
+          <div class="mode-card-icon">
+            <svg viewBox="0 0 512 512" fill="none"><path d="M256 64C160 64 64 160 64 256s96 192 192 192c48 0 91-18 124-47-5-1-10-1-16-1-106 0-192-86-192-192 0-66 33-125 84-161-17-4-35-7-54-7z" stroke="var(--gold)" stroke-width="14" fill="none"/><circle cx="256" cy="64" r="6" fill="var(--gold)"/><circle cx="256" cy="448" r="6" fill="var(--gold)"/></svg>
+          </div>
+          <h3>梦境解析</h3>
+          <p>你的梦在试图告诉你什么。说出你的梦，AI 会按荣格的方法逐层展开解析。</p>
+        </div>
+      </div>
+      <div class="reveal" style="text-align:center">
+        <p style="font-size: 0.88rem; color: var(--muted); margin-bottom: 16px;">不知道从何说起？自由探索的每个话题都对应一种荣格理论：</p>
+        <div class="topic-bubbles" style="justify-content:center">
+          <div class="topic-bubble">"我总觉得自己在扮演一个角色" <span class="concept">→ 人格面具</span></div>
+          <div class="topic-bubble">"为什么我反复爱上同一类型的人？" <span class="concept">→ 阿尼玛</span></div>
+          <div class="topic-bubble">"最近有件事让我情绪反应特别大" <span class="concept">→ 投射</span></div>
+          <div class="topic-bubble">"我发现自己在重复父母的某些行为模式" <span class="concept">→ 情结</span></div>
+          <div class="topic-bubble">"有时候突然感到莫名的空虚" <span class="concept">→ 自性化</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+    <!-- 4.1 Projection Detail -->
+    <div id="projection-detail" class="feature-detail-block reveal" style="scroll-snap-align:start;scroll-margin-top:80px">
+      <div class="feature-detail-inner">
+        <div class="feature-detail-content">
+          <p class="section-label">Projection</p>
+          <h4>投射分析：你讨厌的那个人，可能藏着你自己的秘密</h4>
+          <p>当你对某人有超出比例的强烈反应——暴怒、崇拜、厌恶——这往往是"投射"：你把自己内心不愿面对的部分投射到了别人身上。AI 会带你走过四个阶段：</p>
+          <div class="timeline">
+            <div class="timeline-step"><div class="timeline-rail"><div class="timeline-dot"></div><div class="timeline-line"></div></div><div class="timeline-body"><p>搞清具体的人和事，检索荣格全集中关于投射的原典描述，指出投射信号</p></div></div>
+            <div class="timeline-step"><div class="timeline-rail"><div class="timeline-dot"></div><div class="timeline-line"></div></div><div class="timeline-body"><p>帮你看到镜像——"你讨厌 ta 的这个特质，你自己身上有没有类似的？"</p></div></div>
+            <div class="timeline-step"><div class="timeline-rail"><div class="timeline-dot"></div><div class="timeline-line"></div></div><div class="timeline-body"><p>觉察落地，理解这份情绪真正属于你的部分</p></div></div>
+            <div class="timeline-step"><div class="timeline-rail"><div class="timeline-dot"></div></div><div class="timeline-body"><p>自然收束，生成一张<strong>投射识别卡片</strong>，归档到你的原型卡片中</p></div></div>
+          </div>
+        </div>
+        <div class="feature-detail-demo">
+          <div class="demo-placeholder">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+            <span>投射模式 Demo</span>
+          </div>
+          <p class="demo-caption">投射分析对话过程 + 投射识别卡片生成</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- 4.2 Dream Detail (reversed layout) -->
+    <div id="dream-detail" class="feature-detail-block reveal" style="scroll-snap-align:start;scroll-margin-top:80px">
+      <div class="feature-detail-inner reversed">
+        <div class="feature-detail-content">
+          <p class="section-label">Dream Analysis</p>
+          <h4>梦境解析：你的梦在试图告诉你什么</h4>
+          <p>说出你的梦，不管多零碎。AI 会按荣格的方法逐层展开：</p>
+          <div class="timeline">
+            <div class="timeline-step"><div class="timeline-rail"><div class="timeline-dot"></div><div class="timeline-line"></div></div><div class="timeline-body"><p><strong>整体解读</strong> — 梦的结构、核心情感、可能的心理含义</p></div></div>
+            <div class="timeline-step"><div class="timeline-rail"><div class="timeline-dot"></div><div class="timeline-line"></div></div><div class="timeline-body"><p><strong>意象分析</strong> — 逐个拆解梦中的意象，实时检索荣格全集知识库，结合原典理论和神话原型给出象征含义</p></div></div>
+            <div class="timeline-step"><div class="timeline-rail"><div class="timeline-dot"></div><div class="timeline-line"></div></div><div class="timeline-body"><p><strong>验证假设</strong> — 不问泛泛的"你想到了什么"，而是基于分析提出具体假设让你验证</p></div></div>
+            <div class="timeline-step"><div class="timeline-rail"><div class="timeline-dot"></div></div><div class="timeline-body"><p><strong>连接现实</strong> — 把梦的信息与你的现实生活关联起来</p></div></div>
+          </div>
+        </div>
+        <div class="feature-detail-demo">
+          <div class="demo-placeholder">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+            <span>梦境解析 Demo</span>
+          </div>
+          <p class="demo-caption">梦境输入 → 意象拆解 → 荣格原典检索 → 洞察生成</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ===== Section 5: Archetype Cards (centered full-width) ===== -->
+<section class="page-section" id="archetypes" style="padding-top:80px">
+  <div class="max-w">
+    <div class="section-block">
+      <div class="reveal" style="text-align:center; margin-bottom: 48px;">
+        <p class="section-label">Mind Atlas</p>
+        <h2 class="section-title" style="text-align:center">12 张原型卡片，组成你的心灵全景</h2>
+        <p class="section-desc" style="max-width: 600px; margin: 0 auto 32px; letter-spacing: 0.5px;">
+          荣格发现的 12 种人类共有的心理模式，在 The Alchemy 中化为会生长的卡片。<br>
+          正面是通用描述，翻过来，是只属于你的洞察记录与每日指引。
+        </p>
+        <div class="flip-demo" style="margin-bottom: 24px;">
+          <div class="flip-side">
+            <h4>正面</h4>
+            <p>原型插画 + 通用描述<br><span style="font-size:0.72rem;opacity:0.5;">所有人看到的一样</span></p>
+          </div>
+          <div class="flip-divider">⟷</div>
+          <div class="flip-side">
+            <h4>背面</h4>
+            <p><strong style="color:var(--gold-soft)">你的</strong>洞察记录 + 每日指引<br><span style="font-size:0.72rem;opacity:0.5;">只属于你</span></p>
+          </div>
+        </div>
+        <p class="highlight-sub">
+          每次深度对话都可能解锁新洞察，写入你的卡片。<br>
+          点击"与它对话"，直接和你的阴影、阿尼玛或内在英雄开始私密对话。
+        </p>
+      </div>
+
+      <div class="archetype-showcase" id="archetype-showcase"></div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ===== Section 6: Tech ===== -->
+<section class="page-section" id="tech" style="padding-top:80px">
+  <div class="max-w">
+    <div class="section-block-dark">
+      <div class="reveal" style="margin-bottom: 28px;">
+        <p class="section-label">Engine</p>
+        <h2 class="section-title">背后的架构</h2>
+      </div>
+      <div class="tech-grid">
+        <div class="tech-card">
+          <div class="tech-icon">
+            <svg viewBox="0 0 48 48" fill="none"><rect x="6" y="8" width="36" height="32" rx="3" stroke="var(--gold-soft)" stroke-width="1.5" fill="none"/><line x1="6" y1="16" x2="42" y2="16" stroke="var(--gold-soft)" stroke-width="1.5"/><circle cx="11" cy="12" r="1.5" fill="var(--gold-soft)" opacity="0.5"/><circle cx="16" cy="12" r="1.5" fill="var(--gold-soft)" opacity="0.5"/><circle cx="21" cy="12" r="1.5" fill="var(--gold-soft)" opacity="0.5"/><line x1="12" y1="22" x2="36" y2="22" stroke="var(--gold-soft)" stroke-width="1" opacity="0.4"/><line x1="12" y1="27" x2="30" y2="27" stroke="var(--gold-soft)" stroke-width="1" opacity="0.3"/><line x1="12" y1="32" x2="33" y2="32" stroke="var(--gold-soft)" stroke-width="1" opacity="0.3"/></svg>
+          </div>
+          <h3>RAG — 荣格全集知识库</h3>
+          <p>9 卷《荣格全集》原典经 chunking 切分为 13,000+ 文本块，通过 embedding 模型（1024 维）向量化后写入数据库。对话时实时执行 hybrid search（向量余弦相似度 + IDF 关键词加权），从原典中检索最相关段落注入 prompt，确保每一次解读都有可溯源的理论依据。</p>
+          <div class="volume-list">
+            <span class="volume-item">Vol. 5 <em>Symbols and Transformations</em></span>
+            <span class="volume-item">Vol. 6 <em>Psychological Types</em></span>
+            <span class="volume-item">Vol. 7 <em>Two Essays in Analytical Psychology</em></span>
+            <span class="volume-item">Vol. 8 <em>Structure & Dynamics of the Psyche</em></span>
+            <span class="volume-item">Vol. 9.1 <em>Archetypes & the Collective Unconscious</em></span>
+            <span class="volume-item">Vol. 9.2 <em>Aion</em></span>
+            <span class="volume-item">Vol. 12 <em>Psychology and Alchemy</em></span>
+            <span class="volume-item">Vol. 13 <em>Alchemical Studies</em></span>
+            <span class="volume-item">Vol. 16 <em>Practice of Psychotherapy</em></span>
+          </div>
+        </div>
+        <div class="tech-card">
+          <div class="tech-icon">
+            <svg viewBox="0 0 48 48" fill="none"><circle cx="24" cy="16" r="8" stroke="var(--gold-soft)" stroke-width="1.5" fill="none"/><circle cx="24" cy="36" r="6" stroke="var(--gold-soft)" stroke-width="1.5" fill="none"/><line x1="24" y1="24" x2="24" y2="30" stroke="var(--gold-soft)" stroke-width="1.5"/><circle cx="24" cy="16" r="3" fill="var(--gold-soft)" opacity="0.3"/><circle cx="24" cy="36" r="2" fill="var(--gold-soft)" opacity="0.3"/></svg>
+          </div>
+          <h3>长期记忆 + 用户画像</h3>
+          <p>双层记忆架构：session memory 保持对话上下文连贯；cross-session user profile 持久化用户的核心模式、阴影主题、反复象征和成长轨迹，实现跨会话的持续理解。</p>
+          <p>内置「个人象征词典」——梦境分析中一旦确认某个意象的个人含义（如"水 = 母亲"），自动写入 profile，后续解梦时作为 context 注入。</p>
+        </div>
+        <div class="tech-card">
+          <div class="tech-icon">
+            <svg viewBox="0 0 48 48" fill="none"><circle cx="16" cy="16" r="7" stroke="var(--gold-soft)" stroke-width="1.5" fill="none"/><circle cx="32" cy="16" r="7" stroke="var(--gold-soft)" stroke-width="1.5" fill="none"/><circle cx="24" cy="30" r="7" stroke="var(--gold-soft)" stroke-width="1.5" fill="none"/><circle cx="16" cy="16" r="2.5" fill="var(--gold-soft)" opacity="0.3"/><circle cx="32" cy="16" r="2.5" fill="var(--gold-soft)" opacity="0.3"/><circle cx="24" cy="30" r="2.5" fill="var(--gold-soft)" opacity="0.3"/></svg>
+          </div>
+          <h3>多原型人格 Agent</h3>
+          <p>12 个原型各有独立设计的 system prompt，定义人格特质、语气风格和对话策略——阴影坦率直接，自性平静深远，永恒少年充满好奇。</p>
+          <p>用户可直接与特定原型对话，每个 agent 自动注入该原型相关的 RAG 知识和用户 profile 中对应的洞察记录。</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== Section 7: CTA ===== -->
+<section class="page-section" id="cta">
+  <div class="max-w" style="display:flex;flex-direction:column;align-items:center">
+    <div class="reveal" style="width:40px;height:1px;background:rgba(232,213,163,0.3);margin-bottom:48px;"></div>
+    <h2 class="cta-title reveal">准备好探索你的无意识了吗？</h2>
+    <p class="cta-sub reveal">你的阴影、你的梦、你反复遇到的那些模式——<br>它们都在等你去看见。</p>
+    <a href="javascript:void(0)" class="btn-primary reveal">开始对话</a>
+  </div>
+</section>
+
+<footer><p>The Alchemy — Built with depth, not just data.</p></footer>
+
+<script>
+(function() {
+  // ===== Star Field (Night Voyage style) =====
+  const canvas = document.getElementById('star-canvas');
+  const ctx = canvas.getContext('2d');
+  let stars = [];
+  const dpr = window.devicePixelRatio || 1;
+
+  function initStars() {
+    const w = window.innerWidth, h = window.innerHeight;
+    canvas.width = w * dpr;
+    canvas.height = h * dpr;
+    canvas.style.width = w + 'px';
+    canvas.style.height = h + 'px';
+    ctx.scale(dpr, dpr);
+    const count = Math.floor((w * h) / 2000);
+    stars = [];
+    for (let i = 0; i < count; i++) {
+      stars.push({
+        x: Math.random() * w, y: Math.random() * h,
+        r: Math.random() < 0.9 ? Math.random() * 0.8 + 0.2 : Math.random() * 1.5 + 0.5,
+        s: Math.random() * 0.2 + 0.05,
+        a: Math.random(), ta: Math.random(),
+        ts: Math.random() * 0.015 + 0.002
+      });
+    }
+  }
+
+  function animateStars() {
+    const w = window.innerWidth, h = window.innerHeight;
+    ctx.clearRect(0, 0, w, h);
+    ctx.fillStyle = '#FFF';
+    stars.forEach(star => {
+      star.y -= star.s;
+      if (star.y < 0) { star.y = h; star.x = Math.random() * w; }
+      if (star.a > star.ta) { star.a -= star.ts; if (star.a <= star.ta) { star.a = star.ta; star.ta = Math.random(); } }
+      else { star.a += star.ts; if (star.a >= star.ta) { star.a = star.ta; star.ta = Math.random(); } }
+      ctx.globalAlpha = Math.max(0, Math.min(1, star.a));
+      ctx.beginPath();
+      ctx.arc(star.x, star.y, star.r, 0, Math.PI * 2);
+      ctx.fill();
+    });
+    requestAnimationFrame(animateStars);
+  }
+
+  initStars(); animateStars();
+  window.addEventListener('resize', initStars);
+
+  // ===== Hero Title =====
+  const titleText = '炼金术师';
+  const titleEl = document.getElementById('hero-title');
+  titleText.split('').forEach((c, i) => { const s = document.createElement('span'); s.textContent = c; s.style.setProperty('--d', `${i*0.35}s`); s.style.setProperty('--dur', '8s'); titleEl.appendChild(s); });
+
+
+  // ===== Hero Cards =====
+  const heroArchetypes = [
+    { en:'The Self', zh:'自性', desc:'心灵的终极核心与完整性。超越小我，象征意识与潜意识的统一。', img:'https://images.unsplash.com/photo-1702631778188-f2a534ed080f?w=800&q=80' },
+    { en:'The Shadow', zh:'阴影', desc:'被压抑的黑暗面。既包含不愿面对的弱点，也潜藏着巨大的生命力。', img:'https://images.unsplash.com/photo-1717063357834-18ccc52e04a1?w=800&q=80' },
+    { en:'The Anima', zh:'阿尼玛', desc:'男性内在的女性意象。掌管情感与直觉，是通往潜意识的向导。', img:'https://images.unsplash.com/photo-1746309820957-3932314e5253?w=800&q=80' },
+    { en:'The Persona', zh:'人格面具', desc:'适应社会的外部角色。它保护内在，但若过度认同面具，便会迷失真实自我。', img:'https://images.unsplash.com/photo-1746309820747-ccfdd82c5567?w=800&q=80' },
+    { en:'The Hero', zh:'英雄', desc:'象征自我意识的觉醒。必须战胜潜意识的吞噬力量，历经磨难，完成自我实现。', img:'https://images.unsplash.com/photo-1746557416401-ddc98991337e?w=800&q=80' },
+  ];
+  const heroCardsEl = document.getElementById('hero-cards');
+  heroArchetypes.forEach((a, i) => {
+    heroCardsEl.innerHTML += `<div class="archetype-card" style="--fd:${i*0.6}s" onclick="this.classList.toggle('flipped')"><div class="card-inner"><div class="card-front"><div class="card-front-bg" style="background-image:url('${a.img}')"></div><div class="card-front-overlay"></div><div class="card-front-content"><h3>${a.en}</h3><span>${a.zh}</span></div></div><div class="card-back"><p>${a.desc}</p></div></div></div>`;
+  });
+
+  // ===== Archetype Showcase =====
+  const showcaseArchetypes = [
+    { en:'The Shadow', zh:'阴影', desc:'被压抑的黑暗面，潜藏着生命力', insight:'在投射分析中发现：对同事的强烈不满其实映射了自己压抑的野心。阴影中的力量并非全然黑暗——它包含着被否认的潜力。', date:'2025-03-08', guidance:'今天留意一个让你不舒服的念头，不要急着压下去——问自己：如果接受它，会发生什么？' },
+    { en:'The Anima', zh:'阿尼玛', desc:'内在女性意象，潜意识的向导', insight:'梦中反复出现的引路女性形象，与现实中对情感表达的回避形成对照。阿尼玛在召唤一种更柔软的力量。', date:'2025-03-06', guidance:'今天尝试用直觉做一个小决定，不要分析——感受身体给你的第一个信号。' },
+    { en:'The Persona', zh:'人格面具', desc:'适应社会的外部角色与面具', insight:'发现自己在工作中扮演"永远冷静理性"的角色，代价是压抑了真实的脆弱和不确定感。', date:'2025-03-05', guidance:'选一个安全的人，今天对 ta 说一句不那么"得体"但真实的话。' },
+    { en:'The Hero', zh:'英雄', desc:'自我觉醒与英雄之旅', insight:'梦境中独自穿越黑暗森林的意象，暗示当前正处于英雄之旅的"试炼"阶段。', date:'2025-03-03', guidance:'回想你最近一次想要退缩的时刻，问自己：穿越这片黑暗森林之后，我会成为谁？' },
+    { en:'The Wise Old Man', zh:'智慧老人', desc:'迷途中出现的精神导师', insight:'对话中浮现的"内在导师"声音，与儿时祖父的形象重叠。智慧老人原型正在整合中。', date:'2025-03-01', guidance:'今天花五分钟安静地坐着，想象一位你尊敬的人会如何看待你正在纠结的问题。' },
+    { en:'The Puer Aeternus', zh:'永恒少年', desc:'永恒青春与无限潜能', insight:'反复出现的"不愿长大"主题，与对自由的渴望和对责任的回避密切相关。', date:'2025-02-28', guidance:'做一件"没用但好玩"的事。不为任何目的——让那个被遗忘的少年透口气。' },
+  ];
+  const imgUrls = [
+    'https://images.unsplash.com/photo-1717063357834-18ccc52e04a1?w=800&q=80',
+    'https://images.unsplash.com/photo-1746309820957-3932314e5253?w=800&q=80',
+    'https://images.unsplash.com/photo-1746309820747-ccfdd82c5567?w=800&q=80',
+    'https://images.unsplash.com/photo-1746557416401-ddc98991337e?w=800&q=80',
+    'https://images.unsplash.com/photo-1746309820534-896951910b9c?w=800&q=80',
+    'https://images.unsplash.com/photo-1746557416355-b41fc2cc213c?w=800&q=80'
+  ];
+  const showcaseEl = document.getElementById('archetype-showcase');
+  showcaseArchetypes.forEach((a, i) => {
+    showcaseEl.innerHTML += `<div class="showcase-card" onclick="this.classList.toggle('flipped')"><div class="showcase-inner"><div class="showcase-front"><div class="showcase-front-bg" style="background-image:url('${imgUrls[i]}')"></div><div class="showcase-front-overlay"></div><div class="showcase-front-content"><h3>${a.en}</h3><span class="zh-name">${a.zh}</span><span class="desc">${a.desc}</span></div></div><div class="showcase-back"><div class="showcase-back-header">Voyage Insights</div><div style="display:flex;flex-direction:column;gap:10px;overflow-y:auto;scrollbar-width:none"><div class="insight-entry"><p>${a.insight}</p><div class="date">${a.date}</div></div><div class="guidance-block"><div class="guidance-label">每日指引</div><p class="guidance-text">${a.guidance}</p></div></div></div></div></div>`;
+  });
+
+  // ===== Side Nav =====
+  const sections = [
+    { id:'hero', label:'首页' },
+    { id:'pain-points', label:'共鸣' },
+    { id:'jung', label:'理论' },
+    { id:'features', label:'体验' },
+    { id:'projection-detail', label:'投射' },
+    { id:'dream-detail', label:'梦境' },
+    { id:'archetypes', label:'原型' },
+    { id:'tech', label:'架构' },
+    { id:'cta', label:'开始' },
+  ];
+  const sideNav = document.getElementById('side-nav');
+  sections.forEach(s => {
+    sideNav.innerHTML += `<button class="side-nav-item" data-target="${s.id}" onclick="document.getElementById('${s.id}').scrollIntoView({behavior:'smooth'})"><span class="side-nav-label">${s.label}</span><div class="side-nav-dot"></div></button>`;
+  });
+
+  function updateSideNav() {
+    const items = sideNav.querySelectorAll('.side-nav-item');
+    let activeId = 'hero';
+    sections.forEach(s => {
+      const el = document.getElementById(s.id);
+      if (el) { const r = el.getBoundingClientRect(); if (r.top <= window.innerHeight * 0.4) activeId = s.id; }
+    });
+    items.forEach(item => { item.classList.toggle('active', item.dataset.target === activeId); });
+  }
+
+  // ===== Scroll handlers =====
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); } });
+  }, { threshold: 0.1, rootMargin: '0px 0px -30px 0px' });
+
+  document.querySelectorAll('.reveal, .mode-card, .tech-card, .showcase-card, .archetype-highlight').forEach(el => observer.observe(el));
+  document.querySelectorAll('.mode-card').forEach((el, i) => { el.style.transitionDelay = `${i*0.1}s`; });
+  document.querySelectorAll('.tech-card').forEach((el, i) => { el.style.transitionDelay = `${i*0.12}s`; });
+  document.querySelectorAll('.showcase-card').forEach((el, i) => { el.style.transitionDelay = `${i*0.08}s`; });
+
+  // Hamburger menu
+  const hamburgerBtn = document.getElementById('hamburger-btn');
+  const mobileMenu = document.getElementById('mobile-menu');
+  hamburgerBtn.addEventListener('click', () => {
+    hamburgerBtn.classList.toggle('open');
+    mobileMenu.classList.toggle('open');
+    document.body.style.overflow = mobileMenu.classList.contains('open') ? 'hidden' : '';
+  });
+  document.querySelectorAll('.mobile-menu-link').forEach(link => {
+    link.addEventListener('click', () => {
+      hamburgerBtn.classList.remove('open');
+      mobileMenu.classList.remove('open');
+      document.body.style.overflow = '';
+    });
+  });
+
+  // Nav scroll effects
+  const nav = document.getElementById('main-nav');
+  window.addEventListener('scroll', () => {
+    nav.classList.toggle('scrolled', window.scrollY > 60);
+    updateSideNav();
+  }, { passive: true });
+  updateSideNav();
+})();
+</script>
+</body>
+</html>
