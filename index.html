@@ -381,10 +381,12 @@
 
     /* ===== Archetype Showcase ===== */
     .archetype-showcase {
-      display: flex; justify-content: center; gap: 24px; margin-top: 40px;
+      display: flex; justify-content: flex-start; gap: 24px; margin-top: 40px;
       flex-wrap: nowrap; overflow-x: auto; padding: 24px 2vw;
       scrollbar-width: none; -webkit-overflow-scrolling: touch; width: 100%;
     }
+    .archetype-showcase::before,
+    .archetype-showcase::after { content: ''; margin: auto; }
     .archetype-showcase::-webkit-scrollbar { display: none; }
     .showcase-card {
       width: 220px; height: 400px; perspective: 1200px; cursor: pointer; flex-shrink: 0;
