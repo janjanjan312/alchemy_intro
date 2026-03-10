@@ -189,12 +189,13 @@
     .hero-en-sub {
       font-family: var(--font-cinzel); font-size: clamp(0.7rem, 1.2vw, 0.9rem);
       color: var(--muted); letter-spacing: 0.35rem;
-      margin-top: 12px; margin-bottom: 0; opacity: 0.5;
+      margin-top: -2px; margin-bottom: 0; opacity: 0.5;
     }
     .hero-sub {
-      font-family: var(--font-serif); font-size: 1rem;
-      color: var(--muted); line-height: 2; margin-top: 2.5rem; margin-bottom: 40px; letter-spacing: 2px;
+      font-family: var(--font-serif); font-size: 1.1rem;
+      color: var(--muted); line-height: 2; margin-top: 3.5rem; margin-bottom: 72px; letter-spacing: 2px;
     }
+    .hero-sub span { display: inline-block; animation: floatChar var(--dur, 8s) ease-in-out infinite; animation-delay: var(--d, 0s); }
     .btn-primary {
       display: inline-block; padding: 16px 48px; background: #fff; color: #000;
       font-family: var(--font-serif); font-weight: 700; font-size: 0.95rem;
@@ -351,6 +352,10 @@
     .feature-detail-content { padding: 48px 40px; }
     .feature-detail-demo { padding: 40px; display: flex; flex-direction: column; justify-content: center; align-items: center; border-left: 1px solid var(--border); }
     .feature-detail-demo .demo-placeholder { max-width: 50%; }
+    .feature-detail-demo .demo-images { display: flex; gap: 28px; justify-content: center; align-items: flex-start; width: 100%; }
+    .feature-detail-demo .demo-images .demo-image-item { display: flex; flex-direction: column; align-items: center; width: 38%; }
+    .feature-detail-demo .demo-images .demo-image-item img { width: 100%; border-radius: 1.2rem; box-shadow: 0 8px 32px rgba(0,0,0,0.5); object-fit: contain; border: 1px solid rgba(232,213,163,0.3); }
+    .feature-detail-demo .demo-images .demo-image-item .demo-caption { margin-top: 10px; }
     .feature-detail-content h4 { font-family: var(--font-serif); font-size: 1.5rem; color: #fff; margin-bottom: 12px; font-weight: 500; }
     .feature-detail-content > p { font-size: 0.92rem; color: var(--muted); line-height: 1.8; margin-bottom: 28px; }
 
@@ -396,23 +401,33 @@
     .showcase-front-content h3 { font-family: var(--font-serif); font-size: 1.25rem; color: #fff; margin: 0 0 6px; text-shadow: 0 2px 4px rgba(0,0,0,0.8); }
     .showcase-front-content .zh-name { font-family: var(--font-serif); font-size: 0.85rem; color: rgba(255,255,255,0.8); display: block; margin-bottom: 8px; }
     .showcase-front-content .desc { font-size: 0.7rem; color: rgba(255,255,255,0.65); line-height: 1.4; font-family: var(--font-serif); text-shadow: 0 1px 3px rgba(0,0,0,0.8); }
-    .showcase-back { background: var(--bg-card-hover); transform: rotateY(180deg); border: 1px solid var(--border-hover); display: flex; flex-direction: column; justify-content: center; padding: 24px; }
-    .showcase-back-header { font-family: var(--font-cinzel); font-size: 0.6rem; letter-spacing: 2px; color: var(--gold-soft); text-transform: uppercase; margin-bottom: 16px; opacity: 0.5; text-align: center; }
-    .insight-entry { border-left: 1px solid rgba(232,213,163,0.3); padding-left: 12px; }
-    .insight-entry p { font-family: var(--font-serif); font-size: 0.78rem; line-height: 1.6; color: rgba(255,255,255,0.85); }
-    .insight-entry .date { font-family: var(--font-cinzel); font-size: 0.55rem; color: var(--muted); margin-top: 4px; opacity: 0.5; }
+    .showcase-back { background: #111318; transform: rotateY(180deg); border: 1px solid rgba(232,213,163,0.15); display: flex; flex-direction: column; justify-content: center; gap: 14px; padding: 24px 18px; overflow-y: auto; scrollbar-width: none; }
+    .showcase-back::-webkit-scrollbar { display: none; }
+    .showcase-back-header { font-family: var(--font-cinzel); font-size: 0.5rem; letter-spacing: 3px; color: rgba(232,213,163,0.45); text-transform: uppercase; margin-bottom: 2px; }
+    .showcase-back-title { font-family: var(--font-serif); font-size: 1.2rem; color: #fff; font-weight: 600; margin-bottom: 20px; }
+    .showcase-back-section { font-family: var(--font-serif); font-size: 0.6rem; color: rgba(255,255,255,0.4); letter-spacing: 1px; margin-bottom: 6px; }
+    .insight-entry { padding-left: 0; border-left: none; margin-bottom: 0; }
+    .insight-entry p { font-family: var(--font-serif); font-size: 0.8rem; line-height: 1.6; color: rgba(255,255,255,0.7); }
+    .insight-entry .date { display: none; }
 
     .guidance-block {
-      background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.06);
-      border-radius: 8px; padding: 12px;
+      background: rgba(232,213,163,0.06); border: 1px solid rgba(232,213,163,0.12);
+      border-radius: 8px; padding: 10px;
+      margin-bottom: 0;
     }
     .guidance-label {
-      font-family: var(--font-serif); font-size: 0.65rem; color: var(--gold-soft);
-      letter-spacing: 1px; margin-bottom: 6px; opacity: 0.7;
+      font-family: var(--font-serif); font-size: 0.6rem; color: var(--gold-soft);
+      letter-spacing: 1px; margin-bottom: 4px; opacity: 0.7;
     }
     .guidance-text {
-      font-family: var(--font-serif); font-size: 0.75rem; line-height: 1.6;
-      color: rgba(255,255,255,0.75); margin: 0;
+      font-family: var(--font-serif); font-size: 0.76rem; line-height: 1.6;
+      color: rgba(255,255,255,0.7); margin: 0;
+    }
+    .showcase-back-cta {
+      display: flex; align-items: center; justify-content: center; gap: 6px;
+      font-family: var(--font-serif); font-size: 0.7rem; color: var(--gold-soft);
+      letter-spacing: 1px; padding-top: 12px; margin-top: auto;
+      border-top: 1px solid rgba(255,255,255,0.06);
     }
 
     .archetype-highlight {
@@ -528,8 +543,9 @@
   <div class="max-w" style="display:flex;flex-direction:column;align-items:center;text-align:center">
     <h1 class="hero-title" id="hero-title"></h1>
     <p class="hero-en-sub">T H E &nbsp; A L C H E M Y</p>
-    <div class="hero-sub">基于荣格心理学的 AI 深度对话伙伴，与你一起照亮黑暗的无意识</div>
-    <a href="javascript:void(0)" class="btn-primary">开始探索</a>
+    <div class="hero-sub" id="hero-sub"></div>
+    <a href="https://alchemy-roan-xi.vercel.app/" target="_blank" class="btn-primary">开始探索</a>
+    <p style="font-size: 0.75rem; color: rgba(255,255,255,0.3); margin-top: 16px; letter-spacing: 0.5px;">支持 PWA：浏览器打开网址 → 分享 → 添加到主屏幕</p>
     <div class="hero-cards" id="hero-cards"></div>
   </div>
 </section>
@@ -657,10 +673,10 @@
 
     <!-- 4.1 Projection Detail -->
     <div id="projection-detail" class="feature-detail-block reveal" style="scroll-snap-align:start;scroll-margin-top:80px">
-      <div class="feature-detail-inner">
+      <div class="feature-detail-inner" style="grid-template-columns: 5fr 6fr;">
         <div class="feature-detail-content">
           <p class="section-label">Projection</p>
-          <h4>投射分析：你讨厌的那个人，可能藏着你自己的秘密</h4>
+          <h4>投射分析：你讨厌的那个人，<br>可能藏着你自己的秘密</h4>
           <p>当你对某人有超出比例的强烈反应——暴怒、崇拜、厌恶——这往往是"投射"：你把自己内心不愿面对的部分投射到了别人身上。AI 会带你走过四个阶段：</p>
           <div class="timeline">
             <div class="timeline-step"><div class="timeline-rail"><div class="timeline-dot"></div><div class="timeline-line"></div></div><div class="timeline-body"><p>搞清具体的人和事，检索荣格全集中关于投射的原典描述，指出投射信号</p></div></div>
@@ -670,18 +686,23 @@
           </div>
         </div>
         <div class="feature-detail-demo">
-          <div class="demo-placeholder">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-            <span>投射模式 Demo</span>
+          <div class="demo-images">
+            <div class="demo-image-item">
+              <img src="assets/projection-demo-1.png" alt="投射对话过程" />
+              <p class="demo-caption">投射分析对话过程 + 投射识别卡片生成</p>
+            </div>
+            <div class="demo-image-item">
+              <img src="assets/projection-demo-2.png" alt="原型卡片增加新洞察" />
+              <p class="demo-caption">原型卡片增加新洞察</p>
+            </div>
           </div>
-          <p class="demo-caption">投射分析对话过程 + 投射识别卡片生成</p>
         </div>
       </div>
     </div>
 
     <!-- 4.2 Dream Detail (reversed layout) -->
     <div id="dream-detail" class="feature-detail-block reveal" style="scroll-snap-align:start;scroll-margin-top:80px">
-      <div class="feature-detail-inner reversed">
+      <div class="feature-detail-inner reversed" style="grid-template-columns: 6fr 5fr;">
         <div class="feature-detail-content">
           <p class="section-label">Dream Analysis</p>
           <h4>梦境解析：你的梦在试图告诉你什么</h4>
@@ -694,11 +715,16 @@
           </div>
         </div>
         <div class="feature-detail-demo">
-          <div class="demo-placeholder">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-            <span>梦境解析 Demo</span>
+          <div class="demo-images">
+            <div class="demo-image-item">
+              <img src="assets/dream-demo-1.jpeg" alt="梦境解析对话过程" />
+              <p class="demo-caption">梦境解析 + 新象征存入词典</p>
+            </div>
+            <div class="demo-image-item">
+              <img src="assets/dream-demo-2.jpeg" alt="原型卡片新增词典记录" />
+              <p class="demo-caption">原型卡片新增词典记录</p>
+            </div>
           </div>
-          <p class="demo-caption">梦境输入 → 意象拆解 → 荣格原典检索 → 洞察生成</p>
         </div>
       </div>
     </div>
@@ -794,7 +820,8 @@
     <div class="reveal" style="width:40px;height:1px;background:rgba(232,213,163,0.3);margin-bottom:48px;"></div>
     <h2 class="cta-title reveal">准备好探索你的无意识了吗？</h2>
     <p class="cta-sub reveal">你的阴影、你的梦、你反复遇到的那些模式——<br>它们都在等你去看见。</p>
-    <a href="javascript:void(0)" class="btn-primary reveal">开始对话</a>
+    <a href="https://alchemy-roan-xi.vercel.app/" target="_blank" class="btn-primary reveal">开始对话</a>
+    <p class="reveal" style="font-size: 0.75rem; color: rgba(255,255,255,0.3); margin-top: 16px; letter-spacing: 0.5px;">支持 PWA：浏览器打开网址 → 分享 → 添加到主屏幕</p>
   </div>
 </section>
 
@@ -853,6 +880,9 @@
   const titleEl = document.getElementById('hero-title');
   titleText.split('').forEach((c, i) => { const s = document.createElement('span'); s.textContent = c; s.style.setProperty('--d', `${i*0.35}s`); s.style.setProperty('--dur', '8s'); titleEl.appendChild(s); });
 
+  const subText = '基于荣格心理学的 AI 深度对话伙伴，与你一起照亮黑暗的无意识';
+  const subEl = document.getElementById('hero-sub');
+  subText.split('').forEach((c, i) => { const s = document.createElement('span'); s.textContent = c; s.style.setProperty('--d', `${i*0.15 + 1}s`); s.style.setProperty('--dur', '10s'); subEl.appendChild(s); });
 
   // ===== Hero Cards =====
   const heroArchetypes = [
@@ -886,7 +916,7 @@
   ];
   const showcaseEl = document.getElementById('archetype-showcase');
   showcaseArchetypes.forEach((a, i) => {
-    showcaseEl.innerHTML += `<div class="showcase-card" onclick="this.classList.toggle('flipped')"><div class="showcase-inner"><div class="showcase-front"><div class="showcase-front-bg" style="background-image:url('${imgUrls[i]}')"></div><div class="showcase-front-overlay"></div><div class="showcase-front-content"><h3>${a.en}</h3><span class="zh-name">${a.zh}</span><span class="desc">${a.desc}</span></div></div><div class="showcase-back"><div class="showcase-back-header">Voyage Insights</div><div style="display:flex;flex-direction:column;gap:10px;overflow-y:auto;scrollbar-width:none"><div class="insight-entry"><p>${a.insight}</p><div class="date">${a.date}</div></div><div class="guidance-block"><div class="guidance-label">每日指引</div><p class="guidance-text">${a.guidance}</p></div></div></div></div></div>`;
+    showcaseEl.innerHTML += `<div class="showcase-card" onclick="this.classList.toggle('flipped')"><div class="showcase-inner"><div class="showcase-front"><div class="showcase-front-bg" style="background-image:url('${imgUrls[i]}')"></div><div class="showcase-front-overlay"></div><div class="showcase-front-content"><h3>${a.en}</h3><span class="zh-name">${a.zh}</span><span class="desc">${a.desc}</span></div></div><div class="showcase-back"><div><div class="showcase-back-header">Archetype</div><div class="showcase-back-title">${a.en}</div></div><div><div class="showcase-back-section">洞察记录</div><div class="insight-entry"><p>◆ ${a.insight}</p></div></div><div><div class="showcase-back-section">每日指引</div><div class="guidance-block"><p class="guidance-text">${a.guidance}</p></div></div><div class="showcase-back-cta">☐ 与此原型对话</div></div></div></div>`;
   });
 
   // ===== Side Nav =====
