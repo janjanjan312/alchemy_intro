@@ -196,6 +196,7 @@
       color: var(--muted); line-height: 2; margin-top: 3.5rem; margin-bottom: 72px; letter-spacing: 2px;
     }
     .hero-sub span { display: inline-block; animation: floatChar var(--dur, 8s) ease-in-out infinite; animation-delay: var(--d, 0s); }
+    .hero-sub-line { display: block; }
     .btn-primary {
       display: inline-block; padding: 16px 48px; background: #fff; color: #000;
       font-family: var(--font-serif); font-weight: 700; font-size: 0.95rem;
@@ -882,9 +883,23 @@
   const titleEl = document.getElementById('hero-title');
   titleText.split('').forEach((c, i) => { const s = document.createElement('span'); s.textContent = c; s.style.setProperty('--d', `${i*0.35}s`); s.style.setProperty('--dur', '8s'); titleEl.appendChild(s); });
 
-  const subText = '基于荣格心理学的 AI 深度对话伙伴，与你一起照亮黑暗的无意识';
+  const subLines = [
+    '基于荣格心理学的 AI 深度对话伙伴',
+    '自我探索即是炼金，在黑暗的无意识中，提炼出完整的自己'
+  ];
   const subEl = document.getElementById('hero-sub');
-  subText.split('').forEach((c, i) => { const s = document.createElement('span'); s.textContent = c; s.style.setProperty('--d', `${i*0.15 + 1}s`); s.style.setProperty('--dur', '10s'); subEl.appendChild(s); });
+  subLines.forEach((line, lineIndex) => {
+    const lineEl = document.createElement('div');
+    lineEl.className = 'hero-sub-line';
+    line.split('').forEach((c, i) => {
+      const s = document.createElement('span');
+      s.textContent = c;
+      s.style.setProperty('--d', `${lineIndex * 0.6 + i * 0.12 + 1}s`);
+      s.style.setProperty('--dur', '10s');
+      lineEl.appendChild(s);
+    });
+    subEl.appendChild(lineEl);
+  });
 
   // ===== Hero Cards =====
   const heroArchetypes = [
